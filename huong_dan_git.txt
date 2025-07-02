@@ -43,3 +43,6 @@ git log --oneline --graph --all
 * 786110f branch-dat-001-v1.0
 
 git revert 118c253 
+
+
+git diff <nhánh_thứ_nhất> <nhánh_thứ_hai>
