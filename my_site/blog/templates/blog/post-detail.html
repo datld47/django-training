@@ -10,13 +10,18 @@ This Post Title
     <link rel="stylesheet" href="{% static "blog/post-detail.css" %}"/>
 {% endblock  %}
 
-
 {% block content %}
 <section id="summary">
-    <h2>Post Title</h2>
+    <h2>{{ post.title }}</h2>
+    <div>
+        {% for tag  in post_tags  %}
+            <span class="tag">{{ tag.caption }}</span>
+        {% endfor %}
+    </div> 
+
     <article>
-        <img src="{% static "blog/images/"|add:post.image %}" alt={{ post.title }} />
-        <address>By {{ post.author }}</address>
+        <img src="{{ post.image.url }}" alt={{ post.title }} />
+        <address>By <a href="mailto:{{ post.author.email_address }}"> {{ post.author }}</a> </address>
         <div>
             Last update on <time>{{ post.date|date:"d M Y" }}</time>s
         </div>
