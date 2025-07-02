@@ -1,3 +1,2 @@
-# branch-dat-003
-# V3.0
-- du an blog phan 1
+# django-traing-blog-2
+- my_site: blog
