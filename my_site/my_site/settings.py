@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from os import getenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +21,28 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-m=q@#d_!%70t&$h66vkjc&sf3165g34)(2&j$-=(o*23avjt7x'
+#SECRET_KEY = 'django-insecure-m=q@#d_!%70t&$h66vkjc&sf3165g34)(2&j$-=(o*23avjt7x'
+SECRET_KEY = getenv('SECRET_KEY_PROD', 'django-insecure-m=q@#d_!%70t&$h66vkjc&sf3165g34)(2&j$-=(o*23avjt7x')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+#DEBUG = True
+DEBUG = getenv('DJANGO_DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = []
+
+
+# ALLOWED_HOSTS
+if DEBUG:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+else:
+    # Trong môi trường production, đọc APP_HOST từ biến môi trường
+    # Sử dụng .split(',') để hỗ trợ nhiều host, hoặc chỉ lấy một
+    # Nếu không có APP_HOST, danh sách rỗng sẽ khiến Django lỗi khi DEBUG=False
+    ALLOWED_HOSTS = getenv('APP_HOST', '').split(',')
+    # Lọc bỏ các chuỗi rỗng nếu có
+    ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS if host.strip()]
+
+
+#ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -74,12 +91,33 @@ WSGI_APPLICATION = 'my_site.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    # Cấu hình PostgreSQL cho Production
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql', # Sử dụng PostgreSQL
+            'NAME': getenv('POSTGRES_DB'),
+            'USER': getenv('POSTGRES_USER'),
+            'PASSWORD': getenv('POSTGRES_PASSWORD'),
+            'HOST': getenv('POSTGRES_HOST', 'db'), # 'db' là tên service của PostgreSQL trong docker-compose.yml
+            'PORT': getenv('POSTGRES_PORT', '5432'),
+        }
+    }
+
 
 
 # Password validation
@@ -116,13 +154,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
+
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+##cấu hình  static file cho môi trường dev: Debug = true
+
 STATIC_URL = 'static/'
 
 STATICFILES_DIRS=[
     BASE_DIR / "static"
 ]
-
-
 
 MEDIA_ROOT=BASE_DIR / "uploads"
 MEDIA_URL="/files/"

@@ -3,6 +3,7 @@
 - Post Model
 - Add an imagefield to Post Model
 - Serving Upload Files
-- Update: Convert View to Class Base
-- Update: model comment
-- Update: Read later
+- Convert View to Class Base
+- model comment
+- Read later
+- deploy
